@@ -11,21 +11,19 @@ main:
         addi $sp $sp -4         # $ra を退避
         sw $ra 0($sp)
 
-        li $t0 4                # num = 4
-        la $t1 data             # data の先頭アドレス
-        li $t2 0                # i = 0
+        addi $t0 $zero 4        # num = 4
+        la $t1 data             # t1 = data の先頭アドレス
+        addi $t2 $zero 0        # i = 0
 
 loop:
-        bge $t2 $t0 end         # i >= num なら終了
+        slt $t3 $t2 $t0         # i < num なら $t3 = 1
+        beq $t3 $zero end       # i < num でなければ終了
 
-        sll $t3 $t2 2           # i * 4
-        add $t4 $t1 $t3         # &data[i]
-        lw $a0 0($t4)           # 引数 = data[i]
-
+        lw $a0 0($t1)           # 引数 = data[i]
         jal func                # func(data[i])
+        sw $v0 0($t1)           # data[i] = 戻り値
 
-        sw $v0 0($t4)           # data[i] = 戻り値
-
+        addi $t1 $t1 4          # 次の要素のアドレスへ
         addi $t2 $t2 1          # i++
         j loop
 
